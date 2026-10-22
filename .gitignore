@@ -1,0 +1,8 @@
+.env
+bin/
+tmp/
+*.log
+.venv-diarization/
+models/
+__pycache__/
+cloudflared.exe

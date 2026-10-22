@@ -1,0 +1,26 @@
+[
+  {
+    "mode": "before",
+    "seconds": 117.51,
+    "load_seconds": 0.01,
+    "prompt_seconds": 3.98,
+    "generate_seconds": 113.12,
+    "output_tokens": 1024,
+    "thinking_characters": 3085,
+    "answer_characters": 0,
+    "done_reason": "length",
+    "valid_summary": false
+  },
+  {
+    "mode": "after",
+    "seconds": 15.74,
+    "load_seconds": 0.01,
+    "prompt_seconds": 3.61,
+    "generate_seconds": 11.78,
+    "output_tokens": 116,
+    "thinking_characters": 0,
+    "answer_characters": 342,
+    "done_reason": "stop",
+    "valid_summary": true
+  }
+]

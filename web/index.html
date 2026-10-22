@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f8fc" />
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="Личный ИИ-диктофон: записывайте аудио, получайте расшифровки и ключевые мысли." />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+  <title>Echo — ИИ-диктофон</title>
+</head>
+<body>
+  <section class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
+    <div class="auth-card">
+      <a href="#/" class="brand auth-brand" aria-label="Echo"><img src="/logo.svg" alt="" width="40" height="40" /><span class="brand-name">echo<span class="brand-dot">.</span></span></a>
+      <h1 id="auth-title">Ваши мысли.<br>Только для вас.</h1>
+      <p id="auth-description">Открываем ваше пространство…</p>
+      <div class="auth-tabs" id="auth-tabs" role="group" aria-label="Вход или регистрация" hidden>
+        <button type="button" id="auth-login-tab" aria-pressed="true">Вход</button>
+        <button type="button" id="auth-register-tab" aria-pressed="false">Регистрация</button>
+      </div>
+      <form id="auth-form" hidden>
+        <label for="auth-username">Имя пользователя</label>
+        <input id="auth-username" name="username" autocomplete="username" required minlength="2" maxlength="50" spellcheck="false" autocapitalize="none" />
+        <label for="auth-password">Пароль</label>
+        <div class="password-field"><input id="auth-password" name="password" type="password" autocomplete="current-password" required /><button type="button" id="password-toggle" aria-label="Показать пароль" aria-pressed="false">Показать</button></div>
+        <p class="auth-hint" id="auth-hint" hidden>Придумайте пароль от 12 символов.</p>
+        <label class="auth-confirm" id="auth-confirm-label" hidden for="auth-confirm">Повторите пароль</label>
+        <input id="auth-confirm" name="confirm-password" type="password" autocomplete="new-password" hidden />
+        <p class="auth-error" id="auth-error" role="alert" hidden></p>
+        <button type="submit" class="button button-primary auth-submit" id="auth-submit">Войти</button>
+      </form>
+      <button type="button" class="text-link" id="auth-retry" hidden>Попробовать ещё раз</button>
+      <small class="auth-footnote">Голос. Текст. Главное.</small>
+    </div>
+    <div class="auth-orbit" aria-hidden="true"></div>
+  </section>
+  <svg xmlns="http://www.w3.org/2000/svg" class="svg-defs" aria-hidden="true">
+    <symbol id="ic-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="8" rx="2"/><rect x="3" y="13" width="18" height="8" rx="2"/><path d="M7 7h.01M7 17h.01M11 7h6M11 17h6"/></symbol>
+    <symbol id="ic-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="ic-files" viewBox="0 0 24 24"><rect x="7" y="3" width="13" height="17" rx="2"/><path d="M4 7v13a2 2 0 0 0 2 2h11M10 8h7M10 12h7M10 16h4"/></symbol>
+    <symbol id="ic-settings" viewBox="0 0 24 24"><path d="M10 3h4l.7 2.4 2 1.1 2.4-.8 2 3.5-1.8 1.6v2.4l1.8 1.6-2 3.5-2.4-.8-2 1.1L14 21h-4l-.7-2.4-2-1.1-2.4.8-2-3.5 1.8-1.6v-2.4L2.9 9.2l2-3.5 2.4.8 2-1.1L10 3Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="ic-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></symbol>
+    <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="ic-upload" viewBox="0 0 24 24"><path d="M12 16V3m0 0L7 8m5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-7-7 7 7-7 7"/></symbol>
+    <symbol id="ic-back" viewBox="0 0 24 24"><path d="M20 12H4m7-7-7 7 7 7"/></symbol>
+    <symbol id="ic-play" viewBox="0 0 24 24"><path d="m8 5 12 7-12 7V5Z"/></symbol>
+    <symbol id="ic-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="ic-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+    <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="ic-file" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7Z"/><path d="M13 2v7h7M8 13h8M8 17h6"/></symbol>
+    <symbol id="ic-spark" viewBox="0 0 24 24"><path d="m12 2 2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6L12 2Z"/></symbol>
+    <symbol id="ic-download" viewBox="0 0 24 24"><path d="M12 3v13m0 0 5-5m-5 5-5-5M4 18v3h16v-3"/></symbol>
+    <symbol id="ic-x" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 3 2 21h20L12 3Z"/><path d="M12 9v5M12 17h.01"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 2 4 5v7c0 5 3.5 8 8 10 4.5-2 8-5 8-10V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="ic-headphones" viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 13h3v7H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 1-2ZM20 13h-3v7h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-1-2Z"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="ic-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="ic-refresh" viewBox="0 0 24 24"><path d="M20 10a8 8 0 1 0 .3 4M20 4v6h-6"/></symbol>
+  </svg>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a href="#/" class="brand" aria-label="Echo — главная">
+        <span class="brand-mark"><img src="/logo.svg" alt="" width="35" height="35" /></span>
+        <span class="brand-name">echo<span class="brand-dot">.</span></span>
+      </a>
+      <button class="button button-primary sidebar-create" data-action="record" type="button"><svg><use href="#ic-plus"/></svg> Новая запись</button>
+      
+      <nav class="side-nav" aria-label="Основная навигация">
+        <a href="#/" data-nav="dashboard" class="nav-link active"><svg><use href="#ic-grid"/></svg><span>Обзор</span></a>
+        <a href="#/recordings" data-nav="recordings" class="nav-link"><svg><use href="#ic-files"/></svg><span>Мои записи</span><span class="nav-count" id="nav-count">0</span></a>
+        <a href="#/settings" data-nav="settings" class="nav-link"><svg><use href="#ic-settings"/></svg><span>О приложении</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-footer"><span class="avatar" id="current-avatar">E</span><div><b id="current-user">Личное пространство</b><small>Голос. Текст. Главное.</small></div></div>
+      </div>
+    </aside>
+
+    <div class="work-area">
+      <header class="topbar">
+        <div class="topbar-left"><span class="topbar-section" id="crumb">Личное пространство</span><span class="crumb-divider">/</span><span class="topbar-current" id="crumb-current">Обзор</span></div>
+        <div class="topbar-right">
+          <label class="global-search" for="search-input"><svg><use href="#ic-search"/></svg><input id="search-input" type="search" placeholder="Найти запись" aria-label="Поиск по записям" autocomplete="off"/><kbd>/</kbd></label>
+          <span class="server-indicator" id="server-indicator" hidden><span class="online-dot"></span><span>Нет подключения</span></span>
+          <button type="button" class="top-icon-button" data-action="upload" aria-label="Загрузить файл"><svg><use href="#ic-upload"/></svg></button>
+          <button type="button" class="text-link logout-button" data-action="logout">Выйти</button>
+        </div>
+      </header>
+      <aside id="draft-notice" class="panel" hidden aria-label="Несохранённые записи"></aside>
+      <main class="main-content" id="view" aria-live="polite"></main>
+
+    </div>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Мобильная навигация">
+    <a href="#/" data-nav="dashboard"><svg><use href="#ic-grid"/></svg><span>Обзор</span></a>
+    <a href="#/recordings" data-nav="recordings"><svg><use href="#ic-files"/></svg><span>Записи</span></a>
+    <button type="button" class="mobile-record" data-action="record" aria-label="Новая запись"><svg><use href="#ic-plus"/></svg></button>
+    <a href="#/settings" data-nav="settings"><svg><use href="#ic-settings"/></svg><span>О приложении</span></a>
+  </nav>
+
+  <dialog class="modal" id="record-modal" aria-labelledby="record-title">
+    <div class="modal-header"><div><h2 id="record-title">Запись голоса</h2></div><button type="button" class="icon-button" data-action="close-record" aria-label="Закрыть"><svg><use href="#ic-x"/></svg></button></div>
+    <div id="recorder-body"></div>
+  </dialog>
+
+  <dialog class="modal upload-modal" id="upload-modal" aria-labelledby="upload-title">
+    <div class="modal-header"><div><h2 id="upload-title">Загрузить файл</h2></div><button type="button" class="icon-button" data-action="close-upload" aria-label="Закрыть"><svg><use href="#ic-x"/></svg></button></div>
+    <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Выбрать аудиофайл">
+      <span class="dropzone-icon"><svg><use href="#ic-upload"/></svg></span>
+      <strong>Перетащите аудиофайл сюда</strong>
+      <span>или <u>выберите на устройстве</u></span>
+      <small>Аудио и видео до 200 МБ</small>
+    </div>
+    <div id="selected-file" class="selected-file" hidden></div>
+    <div class="modal-actions"><button type="button" class="button button-ghost" data-action="close-upload">Отмена</button><button type="button" class="button button-primary" id="upload-submit" data-action="submit-upload" disabled>Загрузить файл <svg><use href="#ic-arrow"/></svg></button></div>
+    <input type="file" id="file-input" accept="audio/*,.m4a,.mp3,.wav,.ogg,.opus,.webm,.mp4,.aac,.flac" hidden />
+  </dialog>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <script src="/drafts.js" defer></script>
+  <script src="/auth.js" defer></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru"><meta charset="utf-8"><title>Echo — проверка черновиков</title>
+<h1>Проверка IndexedDB</h1>
+<p>Используются только уникальные тестовые черновики на отдельном тестовом адресе.</p>
+<button id="run">Проверить хранение черновиков</button><pre id="result" role="status">Ожидание запуска</pre>
+<script src="/drafts.js"></script>
+<script>
+document.querySelector('#run').onclick=async()=>{
+  const output=document.querySelector('#result');
+  const ids=[crypto.randomUUID(),crypto.randomUUID()];
+  const check=(condition,message)=>{if(!condition)throw new Error(message);output.textContent+='\n✓ '+message;};
+  output.textContent='Проверка...';
+  let unlock;
+  try {
+    const api=window.EchoDrafts.forUser('00000000-0000-4000-8000-000000009001');
+    await api.create(ids[0],{name:'Первый',mimeType:'audio/webm',duration:1});
+    await api.create(ids[1],{name:'Второй',mimeType:'audio/webm',duration:1});
+    await api.append(ids[0],0,new Blob(['first']),{duration:2});
+    await api.append(ids[0],1,new Blob(['second']),{duration:3});
+    await api.append(ids[1],0,new Blob(['other']),{duration:1});
+    await api.update(ids[0],{name:'Сохранённое название'});
+    const other=window.EchoDrafts.forUser('00000000-0000-4000-8000-000000009002');
+    check(!(await other.list()).some(d=>ids.includes(d.id)), 'Черновики другого пользователя не видны');
+    let foreignRejected=false;try{await other.load(ids[0]);}catch{foreignRejected=true;}
+    check(foreignRejected,'Чужой черновик нельзя открыть по известному ID');
+    let draft=await api.load(ids[0]);
+    check(await draft.blob.text()==='firstsecond','Фрагменты восстанавливаются в правильном порядке');
+    check(draft.bytes===11 && draft.name==='Сохранённое название' && draft.duration===3,'Название, размер и длительность сохранены');
+    check(await (await api.load(ids[1])).blob.text()==='other','Разные записи не смешиваются');
+    let rejected=false;
+    try{await api.append(ids[0],1,new Blob(['duplicate']),{});}catch{rejected=true;}
+    draft=await api.load(ids[0]);
+    check(rejected && draft.bytes===11 && await draft.blob.text()==='firstsecond','Ошибка записи откатывает всю транзакцию');
+    unlock=await api.claim(ids[0]);
+    check(Boolean(unlock),'Блокировка черновика получена');
+    check(await api.claim(ids[0])===null,'Вторая вкладка не может открыть занятый черновик');
+    unlock();unlock=null;
+    await api.update(ids[0],{uploaded:'test-record'});
+    check(!(await api.list()).some(d=>d.id===ids[0]),'Уже загруженный черновик не предлагается повторно');
+    for(const id of ids) await api.remove(id);
+    check(!(await api.list()).some(d=>ids.includes(d.id)),'Удалены только созданные тестом черновики');
+    output.textContent+='\nPASS: 10 проверок';
+  }catch(error){output.textContent+='\nFAIL: '+error.stack;}
+  finally{unlock?.();for(const id of ids)await window.EchoDrafts.forUser('00000000-0000-4000-8000-000000009001').remove(id).catch(()=>{});}
+};
+</script></html>
